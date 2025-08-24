@@ -9,7 +9,7 @@
       padding: 0;
       width: 100vw;
       height: 100vh;
-      overflow: hidden;
+      overflow: hidden; /* remove qualquer scroll */
       display: flex;
       justify-content: center;
       align-items: center;
@@ -17,9 +17,9 @@
     }
 
     #nekoImg {
-      width: 500px;
-      height: 500px;
-      object-fit: cover;
+      width: 500px;   /* quadrado fixo */
+      height: 500px;  /* quadrado fixo */
+      object-fit: cover; /* centraliza e corta a imagem */
       border-radius: 8px;
     }
   </style>
@@ -40,32 +40,27 @@
           const json = await response.json();
 
           const img = new Image();
-          img.crossOrigin = "Anonymous"; // necessário para canvas
+          img.crossOrigin = "Anonymous";
           img.src = json.results[0].url;
 
           await new Promise(resolve => img.onload = resolve);
 
-          const size = 500; // quadrado fixo 500x500
+          const size = 500;
           canvas.width = size;
           canvas.height = size;
 
           const ctx = canvas.getContext('2d');
 
-          // centraliza e corta para preencher quadrado
           const scale = Math.max(size / img.width, size / img.height);
           const x = (size - img.width * scale) / 2;
           const y = (size - img.height * scale) / 2;
           ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
 
           dataURL = canvas.toDataURL('image/png');
-          localStorage.setItem('nekoCache', dataURL); // salva no cache
+          localStorage.setItem('nekoCache', dataURL);
         }
 
         imgEl.src = dataURL;
-
-        // Abre o .png automaticamente em nova aba
-        const win = window.open();
-        win.document.write(`<img src="${dataURL}" style="width:500px;height:500px;object-fit:cover;">`);
 
       } catch (err) {
         console.error(err);
@@ -73,9 +68,6 @@
     }
 
     getNeko();
-
-    // opcional: limpa cache se quiser refazer imagem ao recarregar
-    // window.addEventListener('resize', () => localStorage.removeItem('nekoCache'));
   </script>
 </body>
 </html>
