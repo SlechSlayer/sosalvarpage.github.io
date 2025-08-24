@@ -2,63 +2,80 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Nekos API Example</title>
+  <title>Nekos API Cache Quadrado</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
       width: 100vw;
       height: 100vh;
-      overflow: hidden; /* remove scroll */
+      overflow: hidden;
       display: flex;
       justify-content: center;
       align-items: center;
       background: #000;
     }
 
-    /* Quadrado central que se adapta à tela */
-    #container {
-      width: 90vmin;  /* tamanho máximo baseado na menor dimensão da tela */
-      height: 90vmin; 
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
     #nekoImg {
-      width: 100%;
-      height: 100%;
-      object-fit: cover; /* cobre todo o quadrado mantendo proporção */
-      border-radius: 8px; /* opcional, deixa cantos arredondados */
+      width: 500px;
+      height: 500px;
+      object-fit: cover;
+      border-radius: 8px;
     }
   </style>
 </head>
 <body>
-  <div id="container">
-    <img id="nekoImg" src="" alt="Imagem">
-  </div>
+  <canvas id="canvas" style="display:none;"></canvas>
+  <img id="nekoImg" src="" alt="Imagem">
 
   <script>
+    const imgEl = document.getElementById('nekoImg');
+    const canvas = document.getElementById('canvas');
+
     async function getNeko() {
       try {
-        const response = await fetch('https://nekos.best/api/v2/neko');
-        const json = await response.json();
-        const ei = json.results[0].url;
-        document.getElementById("nekoImg").src = ei;
+        let dataURL = localStorage.getItem('nekoCache'); // pega do cache
+        if (!dataURL) {
+          const response = await fetch('https://nekos.best/api/v2/neko');
+          const json = await response.json();
+
+          const img = new Image();
+          img.crossOrigin = "Anonymous"; // necessário para canvas
+          img.src = json.results[0].url;
+
+          await new Promise(resolve => img.onload = resolve);
+
+          const size = 500; // quadrado fixo 500x500
+          canvas.width = size;
+          canvas.height = size;
+
+          const ctx = canvas.getContext('2d');
+
+          // centraliza e corta para preencher quadrado
+          const scale = Math.max(size / img.width, size / img.height);
+          const x = (size - img.width * scale) / 2;
+          const y = (size - img.height * scale) / 2;
+          ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+
+          dataURL = canvas.toDataURL('image/png');
+          localStorage.setItem('nekoCache', dataURL); // salva no cache
+        }
+
+        imgEl.src = dataURL;
+
+        // Abre o .png automaticamente em nova aba
+        const win = window.open();
+        win.document.write(`<img src="${dataURL}" style="width:500px;height:500px;object-fit:cover;">`);
+
       } catch (err) {
-        console.error("Erro ao carregar a imagem:", err);
+        console.error(err);
       }
     }
 
     getNeko();
 
-    // Ajusta o quadrado sempre que a tela mudar de tamanho
-    window.addEventListener('resize', () => {
-      const container = document.getElementById('container');
-      const size = Math.min(window.innerWidth, window.innerHeight) * 0.9;
-      container.style.width = `${size}px`;
-      container.style.height = `${size}px`;
-    });
+    // opcional: limpa cache se quiser refazer imagem ao recarregar
+    // window.addEventListener('resize', () => localStorage.removeItem('nekoCache'));
   </script>
 </body>
 </html>
