@@ -9,27 +9,8 @@
   <img id="nekoImg" src="" alt="Imagem" width="400" height="400" style="object-fit: cover;">
 
   <script>
-    async function getImage() {
-      try {
-        const response = await fetch('https://api.nekosapi.com/v4/images/random?rating=safe&limit=1');
-        const data = await response.json();
-
-        console.log(data); // Ver o JSON retornado
-
-        // Checa se o array existe e tem pelo menos 1 item
-        if (Array.isArray(data) && data.length > 0) {
-          document.getElementById("nekoImg").src = data[0].url;
-        } else {
-          alert("Nenhuma imagem encontrada!");
-        }
-      } catch (err) {
-        console.error("Erro:", err);
-        alert("Erro ao carregar a imagem.");
-      }
-    }
-	
 	async function getNeko() {
-    const response = await fetch('https://cors-anywhere.herokuapp.com/https://nekos.best/api/v2/neko');
+    const response = await fetch('https://nekos.best/api/v2/neko');
     const json = await response.json();
     const ei = json.results[0].url;
 	document.getElementById("nekoImg").src = ei;
