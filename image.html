@@ -3,20 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <title>Nekos API Example</title>
+  <style>
+    #nekoImg {
+      width: 100%;         /* ocupa 100% da largura do container */
+      max-width: 400px;    /* limite máximo opcional */
+      aspect-ratio: 1 / 1; /* mantém quadrado */
+      object-fit: cover;   /* cobre o quadrado sem distorcer */
+      display: block;
+      margin: 0 auto;      /* centraliza horizontalmente */
+    }
+    
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;       /* altura total da tela */
+      margin: 0;
+    }
+  </style>
 </head>
 <body>
-
-  <img id="nekoImg" src="" alt="Imagem" width="305" height="245" style="object-fit: cover;">
+  <img id="nekoImg" src="" alt="Imagem">
 
   <script>
-	async function getNeko() {
-    const response = await fetch('https://nekos.best/api/v2/neko');
-    const json = await response.json();
-    const ei = json.results[0].url;
-	document.getElementById("nekoImg").src = ei;
-}
-	
-	getNeko();
+    async function getNeko() {
+      try {
+        const response = await fetch('https://nekos.best/api/v2/neko');
+        const json = await response.json();
+        const ei = json.results[0].url;
+        document.getElementById("nekoImg").src = ei;
+      } catch (err) {
+        console.error("Erro ao carregar a imagem:", err);
+      }
+    }
+
+    getNeko();
   </script>
 </body>
 </html>
